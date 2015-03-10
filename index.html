@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="shortcut icon" href="/favicon.ico" /><title>Демонстрация физики</title>
+<link href="./index.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="/mn_js/jquery-2_1_1_min.js"></script>
+<script type="text/javascript" src="./index.js"></script></head><body>
+<table>
+  <tr>
+    <td id="fe_playground" valign="top"></td>
+    <td id="fe_settings" width="250" valign="top">
+      <form action="" id="fe_form">
+        <p>Сцена<textarea tabindex="1" name="scene" rows="30" >
+{
+  "properties":{
+    "width":"1024",
+    "height":"768",
+    "gravity":"1",
+    "interval":"250",
+    "step":"1"
+  },
+  "entities":{
+    "e1":{
+      "type":"rect",
+      "x":"10",
+      "y":"10",
+      "width":"300",
+      "height":"100",
+      "color":"#000000"
+    },
+    "e2":{
+      "type":"circle",
+      "x":"340",
+      "y":"100",
+      "width":"100",
+      "height":"100",
+      "r":"40",
+      "color":"#ff0000"
+    }
+  }
+}
+        </textarea></p>
+        <p><input tabindex="2" type="submit" value="Вперёд!"></p>
+      </form>
+    </td>
+  </tr>
+  <tr height="50">
+    <td id="fe_controls">
+    </td>
+    <td id="fe_copyright">
+    &copy; 2015 vpl-visualjs
+    </td>
+  </tr>
+</table>
+</body></html>
