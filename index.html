@@ -1,15 +1,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link rel="shortcut icon" href="/favicon.ico" /><title>Демонстрация физики</title>
+<link rel="shortcut icon" href="/favicon.ico" /><title>Модуль визуализации для виртуальной лаборатории физики</title>
 <link href="./index.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/mn_js/jquery-2_1_1_min.js"></script>
+<script type="text/javascript" src="./js/jquery-2.1.3.min.js"></script>
 <script type="text/javascript" src="./index.js"></script></head><body>
 <table>
   <tr>
-    <td id="fe_playground" valign="top"></td>
+    <td id="fe_visuals" valign="top"></td>
     <td id="fe_settings" width="250" valign="top">
       <form action="" id="fe_form">
-        <p>Сцена<textarea tabindex="1" name="scene" rows="30" >
+        <p>Адрес post-запроса
+          <input id="fe_url" tabindex="1" value="http://ps.4ky.ru/backend_prototype.php" />
+        </p>
+        <p>Сцена
+          <textarea id="fe_scene" tabindex="2" rows="30" >
 {
   "properties":{
     "width":"1024",
@@ -31,15 +35,14 @@
       "type":"circle",
       "x":"340",
       "y":"100",
-      "width":"100",
-      "height":"100",
       "r":"40",
       "color":"#ff0000"
     }
   }
 }
-        </textarea></p>
-        <p><input tabindex="2" type="submit" value="Вперёд!"></p>
+          </textarea>
+        </p>
+        <p><input tabindex="3" type="submit" value="Вперёд!"></p>
       </form>
     </td>
   </tr>
