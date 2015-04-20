@@ -5,6 +5,7 @@ $(window).load(function(){
   var frames_col=0;
   var frame=1;
   var state=0;
+  var last_time=0;
   
   // == Инициализация == //
   var canv_main=document.createElement('canvas');  // Создаём элемент типа "канвас"
@@ -12,16 +13,18 @@ $(window).load(function(){
   canv_main.height=$('#fe_visuals').height();  // Устанавливаем свойства высоты канваса
   $('#fe_visuals').append(canv_main);  // Добавляем новый элемент в DOM
   var canv_main_obj=canv_main.getContext('2d');  // Получение объекта канваса
+  if($.cookie('ps_scene')) $('#fe_scene').val($.cookie('ps_scene'));  // Восстанавливаем сцену из куки
 
   // == Отправка формы == //
   $('#fe_form').submit(function(e) {
     e.preventDefault();  // Предотвращаем стандартную отправку формы   
+			$.cookie('ps_scene', $('#fe_scene').val(), { expires: 30 });  // Записываем сцену в кукисы
 			$.post($('#fe_url').val(), $('#fe_scene').val(), function(r) {  // Отправляем данные
       fe_scene=JSON.parse(r);  // Парсим JSON массив
       frames_col=0;  // Обнуляем количество кадров
       for(var f in fe_scene["frames"]) frames_col++;  // Считаем количество кадров
       for(var p in fe_scene["entities"]) {  // Перебираем сущности
-        switch(fe_scene["entities"][p]["type"]) {
+        switch(fe_scene["entities"][p]["type"]) {  // Выбираем сущность по типу
           case 'rect':  // Если элемент - прямоугольник
             newRect(p, fe_scene["entities"][p]["width"], fe_scene["entities"][p]["height"], fe_scene["entities"][p]["color"]);  // Рендерим прямоугольник
             break;
@@ -40,15 +43,19 @@ $(window).load(function(){
 	
 	// == Отрисовка кадра сцены == //
   function fe_draw_frame() {
-		canv_main_obj.clearRect(0, 0, canv_main.width, canv_main.height);  // Очищаем холст
-		for(var p in fe_scene["frames"]["f"+frame]) {  // Перебираем энтити в данном кадре
-			canv_main_obj.drawImage(canv_ent[p], fe_scene["frames"]["f"+frame][p]["x"], fe_scene["frames"]["f"+frame][p]["y"]);  // Выводим энтити на холст
-		}
-		if(frame>=frames_col) frame=1; else frame++;  // Если текущий кадр последний - переходим на первый, иначе - переходим на следующий
-		var ani_hnd=requestAnimationFrame(fe_draw_frame, canv_main);  // Рисуем следующий кадр
+    var time = new Date().getTime();
+    if(last_time+1<time) {
+      last_time = time;
+      canv_main_obj.clearRect(0, 0, canv_main.width, canv_main.height);  // Очищаем холст
+      for(var p in fe_scene["frames"]["f"+frame]) {  // Перебираем энтити в данном кадре
+        canv_main_obj.drawImage(canv_ent[p], fe_scene["frames"]["f"+frame][p]["x"], fe_scene["frames"]["f"+frame][p]["y"]);  // Выводим энтити на холст
+      }
+      if(frame>=frames_col) frame=1; else frame++;  // Если текущий кадр последний - переходим на первый, иначе - переходим на следующий
+    }
+    requestAnimationFrame(fe_draw_frame, canv_main);  // Рисуем следующий кадр
   }
 
-  // == Отрисовка элемента типа прямоугольник == //
+  // == Рендеринг элемента типа прямоугольник == //
   function newRect(id, width, height, color) {
 		canv_ent[id]=document.createElement('canvas');  // Создаём холст под рендеринг элемента
 		canv_ent[id].width=width;
@@ -59,7 +66,7 @@ $(window).load(function(){
     canv_ent_obj[id].stroke();  // Рисуем прямоугольник
   }
   
-    // == Отрисовка элемента типа круг == //
+    // == Рендеринг элемента типа круг == //
   function newCircle(id, r, color) {
 		canv_ent[id]=document.createElement('canvas');  // Создаём холст под рендеринг элемента
 		canv_ent[id].width=r*2;
