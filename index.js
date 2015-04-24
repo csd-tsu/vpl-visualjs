@@ -33,7 +33,7 @@ $(window).load(function(){
             break;
         }
       }
-      frame=1;  // Переключаемся на первый кадр
+      frame=0;  // Переключаемся на первый кадр
       if(state==0) {  // Если состояние Стоп
         state=1;  // Меняем состояние на Проигрывание
         fe_draw_frame();  // Начинаем отрисовку
@@ -47,10 +47,10 @@ $(window).load(function(){
     if(last_time+1<time) {
       last_time = time;
       canv_main_obj.clearRect(0, 0, canv_main.width, canv_main.height);  // Очищаем холст
-      for(var p in fe_scene["frames"]["f"+frame]) {  // Перебираем энтити в данном кадре
-        canv_main_obj.drawImage(canv_ent[p], fe_scene["frames"]["f"+frame][p]["x"], fe_scene["frames"]["f"+frame][p]["y"]);  // Выводим энтити на холст
+      for(var p in fe_scene["frames"][frame]) {  // Перебираем энтити в данном кадре
+        canv_main_obj.drawImage(canv_ent[p], fe_scene["frames"][frame][p]["x"], fe_scene["frames"][frame][p]["y"]);  // Выводим энтити на холст
       }
-      if(frame>=frames_col) frame=1; else frame++;  // Если текущий кадр последний - переходим на первый, иначе - переходим на следующий
+      if(frame>=frames_col) frame=0; else frame++;  // Если текущий кадр последний - переходим на первый, иначе - переходим на следующий
     }
     requestAnimationFrame(fe_draw_frame, canv_main);  // Рисуем следующий кадр
   }
