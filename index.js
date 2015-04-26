@@ -20,6 +20,7 @@ $(window).load(function(){
     e.preventDefault();  // Предотвращаем стандартную отправку формы   
 			$.cookie('ps_scene', $('#fe_scene').val(), { expires: 30 });  // Записываем сцену в кукисы
 			$.post($('#fe_url').val(), $('#fe_scene').val(), function(r) {  // Отправляем данные
+      //alert(r);
       fe_scene=JSON.parse(r);  // Парсим JSON массив
       frames_col=0;  // Обнуляем количество кадров
       for(var f in fe_scene["frames"]) frames_col++;  // Считаем количество кадров
