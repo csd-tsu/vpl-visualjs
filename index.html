@@ -7,19 +7,23 @@
 <script type="text/javascript" src="./index.js"></script></head><body>
 <table>
   <tr>
-    <td id="fe_visuals" valign="top"></td>
+    <td id="fe_visuals" valign="top">
+      <canvas id="fe_canvas">
+    </td>
     <td id="fe_settings" width="250" valign="top">
       <p>Адрес бэкенда
         <input id="fe_url" tabindex="1" value="http://54.93.200.11:8080/oklimenko/stub" />
       </p>
       <p>Сцена
-        <textarea id="fe_scene" tabindex="2" rows="30">
-        </textarea>
+        <textarea id="fe_scene" tabindex="2" rows="30"></textarea>
       </p>
       <p>
-        <button id="fe_default_scene">Загрузить стандартную сцену</button>
+        <button id="fe_scene_apply">Применить сцену</button>
+        <button id="fe_scene_save">Сохранить сцену</button>
+        <button id="fe_scene_load">Загрузить сохранённую сцену</button>
+        <button id="fe_scene_default">Загрузить стандартную сцену</button>
       </p>
-      </form>
+      <textarea id="fe_info"></textarea>
     </td>
   </tr>
   <tr height="50">

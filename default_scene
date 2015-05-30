@@ -1,0 +1,26 @@
+{
+  "gravity": "1",
+  "duration": 12,
+  "interval": 0.2,
+  "entities": [
+    {
+      "type": "rect",
+      "x": 10,
+      "y": 410,
+      "vx": 10,
+      "vy": 10,
+      "width": "300",
+      "height": "100",
+      "color": "#edb853"
+    },
+    {
+      "type": "circle",
+      "x": 340,
+      "y": 400,
+      "vx": -10,
+      "vy": 10,
+      "r": "40",
+      "color": "#ff0000"
+    }
+  ]
+}
