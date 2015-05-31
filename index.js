@@ -1,7 +1,8 @@
 // == Хендлеры и действия при загрузке страницы == //
 $(window).load(function() {
+  fe_counter=0;
 
-  var ObjScene = $('#fe_canvas').initscene({'width': $('#fe_visuals').width(), 'height': $('#fe_visuals').height()});  // Инициализация объекта сцены
+  var ObjScene = $('#fe_canvas').vplvisual({'width': $('#fe_visuals').width(), 'height': $('#fe_visuals').height()});  // Инициализация объекта сцены
   
   // == Кнопка Проиграть == //
   $('#fe_controls_play').click(function(e) {
@@ -26,6 +27,7 @@ $(window).load(function() {
   // == Кнопка Применить сцену == //
 	$('#fe_scene_apply').click(function(e) {
     $.post($('#fe_url').val(), $('#fe_scene').val(), function(r) {  // Отправляем сцену бэкенду и принимаем анимацию
+      $('#fe_info').val(r);
       ObjScene.loadAnimationDocument(r);  // Передаём анимацию в сцену 
     });
 	});
@@ -51,8 +53,17 @@ $(window).load(function() {
   $('#fe_canvas').click(function(e) {
     var x = e.pageX - this.offsetLeft;
     var y = e.pageY - this.offsetTop;
-    var info=ObjScene.getEntityInfo(x, y);
+    var info=ObjScene.getObjectPropertiesByCoord(x, y);
     $('#fe_info').val(JSON.stringify(info));
+  });
+
+  ObjScene.onFrameChanged(function() {
+    $('#fe_controls_progress').width(ObjScene.getCurrentFrame()*(500/ObjScene.HowManyFrames()));
+  });
+
+  ObjScene.onAnimationEnd(function() {
+    fe_counter++;
+    $('#fe_counter').val(fe_counter);
   });
 
 });
