@@ -68,7 +68,7 @@ $(window).load(function() {
 	
 	// == Кнопка Загрузить стандартную сцену == //
 	$('#fe_scene_default').click(function(e) {
-    $.get('./default_scene?'+new Date().getTime(), function(r){  // Читаем файл со стандартной сценой
+    $.get('./default_scene', function(r){  // Читаем файл со стандартной сценой
       $('#fe_scene').val(r);  // Помещаем содержимое в соотв. поле
     });
 	});

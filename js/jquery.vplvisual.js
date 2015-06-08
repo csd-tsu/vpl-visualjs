@@ -18,7 +18,8 @@
   // == Методы плагина == //
   var methods = {
   
-    getAnimation:function(url, scene, compression=0) {
+    getAnimation:function(url, scene, compression) {
+      if(typeof compression==undefined) compression=0;
       use_compression=compression;
       if(compression==0) {
         $.post(url, scene, function(r) {  // Отправляем сцену бэкенду и принимаем анимацию
@@ -346,6 +347,11 @@
                   canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]+10);
                   canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
                   canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]-10, fe_scene["frames"][frame+5][p]["y"]);  
+                  }
+                  else if (fe_scene["frames"][frame+5][p]["x"]==fe_scene["frames"][frame][p]["x"] && fe_scene["frames"][frame][p]["y"] > fe_scene["frames"][frame+5][p]["y"]) {
+                    canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]-5, fe_scene["frames"][frame+5][p]["y"]+5);
+                    canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+                    canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]+5, fe_scene["frames"][frame+5][p]["y"]+5);  
                   }
             canv_main_obj.stroke();
           }
