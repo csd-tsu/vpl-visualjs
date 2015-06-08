@@ -1,35 +1,59 @@
 // == Хендлеры и действия при загрузке страницы == //
 $(window).load(function() {
-  fe_counter=0;
+  var fe_counter=0;
+  var fe_play=0;
+  var fe_compression=0;
 
+  $('#fe_use_compression').prop('checked', false); 
+  $('#fe_show_vectors').prop('checked', false);
+  $('#fe_info').val('');
+  $('#fe_counter').val('');
+   
   var ObjScene = $('#fe_canvas').vplvisual({'width': $('#fe_visuals').width(), 'height': $('#fe_visuals').height()});  // Инициализация объекта сцены
   
   // == Кнопка Проиграть == //
   $('#fe_controls_play').click(function(e) {
-    ObjScene.play();  // Запускаем проигрывание
+    if(fe_play==0) {
+      ObjScene.play();  // Запускаем проигрывание
+      fe_play=1;
+      $('#fe_controls_play').css({'background-image':'url("./img/pause.png"'});
+    } else {
+      ObjScene.pause();
+      fe_play=0;
+      $('#fe_controls_play').css({'background-image':'url("./img/play.png"'});
+    }
   });
   
   // == Кнопка Стоп == //
   $('#fe_controls_stop').click(function(e) {
     ObjScene.stop();  // Останавливаем проигрывание
+    if(fe_play==1) {
+      $('#fe_controls_play').css({'background-image':'url("./img/play.png"'});
+      fe_play=0;
+    }
 	});
 
   // == Кнопка Назад == //
   $('#fe_controls_prev').click(function(e) {
     ObjScene.previousFrame();  // Вызываем предыдущий кадр
+    if(fe_play==1) {
+      $('#fe_controls_play').css({'background-image':'url("./img/play.png"'});
+      fe_play=0;
+    }
 	});
 
   // == Кнопка Вперёд == //
   $('#fe_controls_next').click(function(e) {
     ObjScene.nextFrame();  // Вызываем следующий кадр
+    if(fe_play==1) {
+      $('#fe_controls_play').css({'background-image':'url("./img/play.png"'});
+      fe_play=0;
+    }
 	});
 
   // == Кнопка Применить сцену == //
 	$('#fe_scene_apply').click(function(e) {
-    $.post($('#fe_url').val(), $('#fe_scene').val(), function(r) {  // Отправляем сцену бэкенду и принимаем анимацию
-      $('#fe_info').val(r);
-      ObjScene.loadAnimationDocument(r);  // Передаём анимацию в сцену 
-    });
+    var r=ObjScene.getAnimation($('#fe_url').val(), $('#fe_scene').val(), fe_compression);
 	});
 	
 	// == Кнопка Сохранить сцену == //
@@ -64,6 +88,34 @@ $(window).load(function() {
   ObjScene.onAnimationEnd(function() {
     fe_counter++;
     $('#fe_counter').val(fe_counter);
+  });
+
+  ObjScene.onAnimationRecieved(function(e) {
+    var s=ObjScene.getAnimSize();
+    ObjScene.loadAnimationDocument(ObjScene.getRecievedAnimation());  // Передаём анимацию в сцену
+    var compr='';
+    if(fe_compression==0) {
+      compr='Сжатие не используется';
+    } else {
+      compr='Используется сжатие';
+    }
+    $('#fe_info').val('Размер анимации: '+s+' байт\n'+compr);
+  });
+
+  $('#fe_show_vectors').click(function() {
+    if($(this).prop("checked")) {
+      ObjScene.showVectors();
+    } else {
+      ObjScene.hideVectors();
+    }
+  });
+  
+  $('#fe_use_compression').click(function() {
+    if($(this).prop("checked")) {
+      fe_compression=1;
+    } else {
+      fe_compression=0;
+    }
   });
 
 });

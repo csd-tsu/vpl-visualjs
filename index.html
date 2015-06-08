@@ -5,6 +5,7 @@
 <script type="text/javascript" src="./js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="./js/jquery.cookie-1.4.1.js"></script>
 <script type="text/javascript" src="./js/jquery.vplvisual.js"></script>
+<script type="text/javascript" src="./js/gunzip.min.js"></script>
 <script type="text/javascript" src="./index.js"></script></head><body>
 <table>
   <tr>
@@ -14,6 +15,7 @@
     <td id="fe_settings" width="250" valign="top">
       <p>Адрес бэкенда
         <input id="fe_url" tabindex="1" value="http://54.93.200.11:8080/oklimenko/stub" />
+        <input id="fe_use_compression" type="checkbox" /> Бэкенд использует сжатие
       </p>
       <p>Сцена
         <textarea id="fe_scene" tabindex="2" rows="30"></textarea>
@@ -24,6 +26,7 @@
         <button id="fe_scene_load">Загрузить сохранённую сцену</button>
         <button id="fe_scene_default">Загрузить стандартную сцену</button>
       </p>
+      <input type="checkbox" id="fe_show_vectors" /> Отображать векторы
       <textarea id="fe_info"></textarea>
       <br /><br />
       <input id="fe_counter" value="0" />

@@ -9,9 +9,43 @@
   var state=0;  // Состояние (0 стоп, 1 проигрывание)
   var last_time=0;  // Переменная под последнее время
   var start_frame=0;  // Номер первого кадра
+  var show_vectors=0;
+  var use_compression=0;
+  var scene_size=0;
+  var recieved_anim='';
+  var new_recieved_anim=0;
   
   // == Методы плагина == //
   var methods = {
+  
+    getAnimation:function(url, scene, compression=0) {
+      use_compression=compression;
+      if(compression==0) {
+        $.post(url, scene, function(r) {  // Отправляем сцену бэкенду и принимаем анимацию
+          scene_size=r.length;
+          recieved_anim=r;  // Возвращаем анимацию
+          new_recieved_anim=1;
+        });
+        return true;
+      } else {
+        var oReq = new XMLHttpRequest();
+        oReq.open("POST", $('#fe_url').val(), true);
+        oReq.responseType = "arraybuffer";
+        oReq.onload = function(oEvent) {
+          var arrayBuffer = oReq.response;
+          if(arrayBuffer) {
+            var byteArray = new Uint8Array(arrayBuffer);
+            var gunzip = new Zlib.Gunzip(byteArray);
+            var plain = String.fromCharCode.apply(null, gunzip.decompress());
+            scene_size=byteArray.length;
+            recieved_anim=plain;  // Возвращаем анимацию
+            new_recieved_anim=1;
+          }
+        };
+        oReq.send($('#fe_scene').val());
+        return true;
+      }
+    },
   
     loadAnimation:function(json_doc) {
       fe_scene=JSON.parse(json_doc);  // Парсим JSON массив
@@ -38,8 +72,11 @@
       state=0;  // Останавливаем проигрывание
     },
     
+    pause:function() {
+      state=0;  // Останавливаем проигрывание
+    },    
+    
     play:function() {
-      frame=0;  // Переключаемся на первый кадр
       if(state==0) {  // Если состояние Стоп
         state=1;  // Меняем состояние на Проигрывание
         fe_draw_frame(); // Запускаем отривку кадров
@@ -62,6 +99,10 @@
       start_frame=0;
       frame=0;
       state=0;
+    },
+    
+    getAnimSize:function() {
+      return scene_size;
     },
     
     getCurrentFrame:function() {
@@ -89,6 +130,10 @@
       return 'none';
     },
     
+    getRecievedAnim() {
+      return recieved_anim;
+    },
+    
     nextFrame:function() {
       frame++;  // Меняем кадр на следующий
       state=0;
@@ -100,9 +145,25 @@
       state=0;
       fe_draw_frame();  // Отрисовываем один кадр
     },
+    
+    showVectors:function() {
+      show_vectors=1;
+      if(state==0)
+        fe_draw_frame();  // Отрисовываем один кадр
+    },
+    
+    hideVectors:function() {
+      show_vectors=0;
+      if(state==0)
+        fe_draw_frame();  // Отрисовываем один кадр
+    },
 
     onAnimationEnd:function(handler) {
       $(this).bind('onAnimationEnd.vplvisual', handler);
+    },
+    
+    onAnimationRecieved:function(handler) {
+      $(this).bind('onAnimationRecieved.vplvisual', handler);
     },
     
     onFrameChanged:function(handler) {
@@ -132,7 +193,12 @@
     });
  
     // Возвращаем объект и методы, доступные объекту
-    return { 
+    return {
+     
+      getAnimation:function(url, scene, compression) {
+        return methods.getAnimation(url, scene, compression);
+      },
+    
       loadAnimationDocument : function(json_doc) {  
         methods.loadAnimation.apply(canv_main, [json_doc]);
       },
@@ -144,7 +210,11 @@
       play : function() {
         methods.play();
       },
-    
+
+      pause : function() {
+        methods.pause();
+      },
+
       HowManyFrames : function(){
         return methods.frames_count();
       },
@@ -165,6 +235,10 @@
         return methods.getCurrentFrame();
       },
 
+      getAnimSize : function() {
+        return methods.getAnimSize();
+      },
+
       getObjectPropertiesById : function(p) {
         return methods.getObjectPropertiesById(p);
       },
@@ -173,12 +247,24 @@
         return methods.getObjectPropertiesByCoord(x, y);
       },
       
+      getRecievedAnimation : function() {
+        return methods.getRecievedAnim();
+      },
+      
       nextFrame:function() {
         methods.nextFrame();
       },
       
       previousFrame:function() {
         methods.previousFrame();
+      },
+
+      showVectors:function() {
+        methods.showVectors();
+      },
+      
+      hideVectors:function() {
+        methods.hideVectors();
       },
 
       onFrameChanged:function(handler) {
@@ -200,10 +286,20 @@
           lastframe=methods.getCurrentFrame.apply(canv_main);
         }, (fe_scene["interval"]/1000));
       },
+      
+      onAnimationRecieved:function(handler) {
+        methods.onAnimationRecieved.apply(canv_main, [handler]);     
+        setInterval(function() {
+          if(new_recieved_anim!=0) {
+            new_recieved_anim=0;
+            canv_main.trigger('onAnimationRecieved.vplvisual');
+          }
+        }, 100);
+      },
     
       onFrameChangedoff:function(handler) {
         canv_main.unbind('.vplvisual');
-      }  
+      }
     };
   };
 	
@@ -215,6 +311,8 @@
       canv_main_obj.clearRect(0, 0, canv_main_obj.canvas.width, canv_main_obj.canvas.height);  // Очищаем холст
       for(var p in fe_scene["frames"][frame]) {  // Перебираем энтити в данном кадре
         var halfx, halfy;
+        if(typeof fe_scene["entities"][p]["x"]==undefined) fe_scene["entities"][p]["x"]=fe_scene["entities"][p-1]["x"];
+        if(typeof fe_scene["entities"][p]["y"]==undefined) fe_scene["entities"][p]["y"]=fe_scene["entities"][p-1]["y"];
         if(fe_scene["entities"][p]["type"]=='circle') {
           halfx=fe_scene["entities"][p]["r"];
           halfy=fe_scene["entities"][p]["r"];
@@ -223,6 +321,35 @@
           halfy=fe_scene["entities"][p]["height"]/2;
         }
         canv_main_obj.drawImage(canv_ent[p], fe_scene["frames"][frame][p]["x"]-halfx, fe_scene["frames"][frame][p]["y"]-halfy);  // Выводим энтити на холст
+        if(show_vectors==1) {
+          if(fe_scene["frames"][frame+1]!= undefined && fe_scene["frames"][frame+5]!= undefined) { 
+            canv_main_obj.beginPath();
+            canv_main_obj.moveTo(fe_scene["frames"][frame][p]["x"], fe_scene["frames"][frame][p]["y"]); //try to draw a line
+            canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+
+            if (fe_scene["frames"][frame+5][p]["x"]<fe_scene["frames"][frame][p]["x"] && fe_scene["frames"][frame][p]["y"] < fe_scene["frames"][frame+5][p]["y"]) { 
+              canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]-10);
+              canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+              canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]+10, fe_scene["frames"][frame+5][p]["y"]); 
+              }
+              else if(fe_scene["frames"][frame+5][p]["x"]>fe_scene["frames"][frame][p]["x"] && fe_scene["frames"][frame][p]["y"] < fe_scene["frames"][frame+5][p]["y"]) { 
+                canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]-10);
+                canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+                canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]-10, fe_scene["frames"][frame+5][p]["y"]);
+                }
+                else if (fe_scene["frames"][frame+5][p]["x"]<fe_scene["frames"][frame][p]["x"] && fe_scene["frames"][frame][p]["y"] > fe_scene["frames"][frame+5][p]["y"]) {
+                canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]+10);
+                canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+                canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]+10, fe_scene["frames"][frame+5][p]["y"]);  
+                }
+                else if (fe_scene["frames"][frame+5][p]["x"]>fe_scene["frames"][frame][p]["x"] && fe_scene["frames"][frame][p]["y"] > fe_scene["frames"][frame+5][p]["y"]) {
+                  canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]+10);
+                  canv_main_obj.moveTo(fe_scene["frames"][frame+5][p]["x"], fe_scene["frames"][frame+5][p]["y"]);
+                  canv_main_obj.lineTo(fe_scene["frames"][frame+5][p]["x"]-10, fe_scene["frames"][frame+5][p]["y"]);  
+                  }
+            canv_main_obj.stroke();
+          }
+        }
       }
     }
     if(state==1) {
@@ -256,7 +383,7 @@
     canv_ent_obj[id].fill();   
     canv_ent_obj[id].lineWidth = 1;
     canv_ent_obj[id].strokeStyle = color;  // Задаём цвет круга
-    canv_ent_obj[id].stroke();  // Рисуем круга
+    canv_ent_obj[id].stroke();  // Рисуем круг
   }
   
   // == Преобразование rgb в hex код цвета == //

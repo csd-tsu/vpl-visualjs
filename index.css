@@ -56,6 +56,10 @@ table td {
   width: 95%;
 }
 
+#fe_settings input[type=checkbox] {
+  width: 16px;
+}
+
 #fe_copyright {
   text-align: center;
   border: 0;

@@ -1,25 +1,28 @@
 {
+  "width": "1024",
+  "height": "768",
   "gravity": "1",
-  "duration": 12,
+  "duration": 24,
   "interval": 0.2,
   "entities": [
     {
-      "type": "rect",
-      "x": 210,
-      "y": 410,
-      "vx": 10,
-      "vy": 10,
-      "width": "300",
-      "height": "100",
+      "type": "circle",
+      "x": 100,
+      "y": 400,
+      "vx": 60,
+      "vy": 60,
+      "r": 60,
+      "m": 2,
       "color": "#edb853"
     },
     {
       "type": "circle",
-      "x": 400,
-      "y": 430,
-      "vx": -10,
-      "vy": 10,
-      "r": "40",
+      "x": 700,
+      "y": 400,
+      "vx": -60,
+      "vy": 60,
+      "r": 40,
+      "m": 1,
       "color": "#ff0000"
     }
   ]
