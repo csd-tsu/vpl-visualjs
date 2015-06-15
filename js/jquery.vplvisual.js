@@ -131,20 +131,24 @@
       return 'none';
     },
     
-    getRecievedAnim() {
+    getRecievedAnim:function() {
       return recieved_anim;
     },
     
     nextFrame:function() {
-      frame++;  // Меняем кадр на следующий
-      state=0;
-      fe_draw_frame();  // Отрисовываем один кадр
+      if(frame<frames_col) {
+        frame++;  // Меняем кадр на следующий
+        state=0;
+        fe_draw_frame();  // Отрисовываем один кадр
+      }
     },
     
     previousFrame:function() {
-      frame--;  // Меняем кадр на предыдущий
-      state=0;
-      fe_draw_frame();  // Отрисовываем один кадр
+      if(frame>0) {
+        frame--;  // Меняем кадр на предыдущий
+        state=0;
+        fe_draw_frame();  // Отрисовываем один кадр
+      }
     },
     
     showVectors:function() {
